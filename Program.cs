@@ -27,11 +27,15 @@ class Program
     {
       var outputFile = Path.Combine(projectDir, "local.settings.json");
 
-      // Extract function names
-      var functionNames = ExtractFunctionNames(projectDir);
+      // Only attempt creation of file if it already exists
+      if (File.Exists(outputFile))
+      {
+        // Extract function names
+        var functionNames = ExtractFunctionNames(projectDir);
 
-      // Update local.settings.json
-      UpdateLocalSettingsJson(outputFile, functionNames);
+        // Update local.settings.json
+        UpdateLocalSettingsJson(outputFile, functionNames);
+      }
     }
 
     Environment.Exit(0); // Exit successfully
@@ -97,18 +101,8 @@ class Program
   // Update the local.settings.json file based on the function names
   static void UpdateLocalSettingsJson(string settingsFilePath, HashSet<string> functionNames)
   {
-    // Load the local.settings.json file if it exists
-    JsonNode settingsNode;
-
-    if (File.Exists(settingsFilePath))
-    {
-      var settingsJson = File.ReadAllText(settingsFilePath);
-      settingsNode = JsonNode.Parse(settingsJson);
-    }
-    else
-    {
-      settingsNode = new JsonObject();
-    }
+    var settingsJson = File.ReadAllText(settingsFilePath);
+    var settingsNode = JsonNode.Parse(settingsJson);
 
     // Ensure the "Values" section exists
     if (settingsNode["Values"] is not JsonObject values)
