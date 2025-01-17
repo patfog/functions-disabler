@@ -25,17 +25,18 @@ class Program
 
     foreach (var projectDir in csprojDirs)
     {
+      if (string.IsNullOrEmpty(projectDir)) continue;
+
       var outputFile = Path.Combine(projectDir, "local.settings.json");
 
       // Only attempt creation of file if it already exists
-      if (File.Exists(outputFile))
-      {
-        // Extract function names
-        var functionNames = ExtractFunctionNames(projectDir);
+      if (!File.Exists(outputFile)) continue;
 
-        // Update local.settings.json
-        UpdateLocalSettingsJson(outputFile, functionNames);
-      }
+      // Extract function names
+      var functionNames = ExtractFunctionNames(projectDir);
+
+      // Update local.settings.json
+      UpdateLocalSettingsJson(outputFile, functionNames);
     }
 
     Environment.Exit(0); // Exit successfully
@@ -103,11 +104,12 @@ class Program
   {
     var settingsJson = File.ReadAllText(settingsFilePath);
     var settingsNode = JsonNode.Parse(settingsJson);
+    if (settingsNode is null) return;
 
     // Ensure the "Values" section exists
     if (settingsNode["Values"] is not JsonObject values)
     {
-      values = new JsonObject();
+      values = [];
       settingsNode["Values"] = values;
     }
 
